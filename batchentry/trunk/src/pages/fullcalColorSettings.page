@@ -1,0 +1,90 @@
+<apex:page standardController="User" extensions="fullcalUserExt" showheader="false" >
+
+	<script type='text/javascript' src="{!URLFOR($Resource.fullcalendar_148,'/jquery/jquery-1.4.3.min.js')}"></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.fullcalendar_148, '/jquery/farbtastic.js')}"></script>
+    <apex:stylesheet value="{!URLFOR($Resource.fullcalendar_148, '/css/light-blue/jquery-ui-1.8.6.custom.css')}" />
+    <script type="text/javascript" src="{!URLFOR($Resource.fullcalendar_148, '/jquery/jquery-ui-1.8.6.custom.min.js')}"></script>
+ 
+<apex:form >
+
+	<div id="errors"><apex:pageMessages id="errorMsgs" /></div>
+	
+ 
+	<apex:pageBlock title="Edit Event" mode="edit" >
+	
+	   	<apex:facet name="header"><h3>Edit User Color</h3></apex:facet>
+	   	
+	    <apex:pageBlockButtons >
+			    <a href="#"  onclick="window.close();">Cancel</a>&nbsp;
+				
+				<apex:commandButton onclick="callApexSaveColor();" value="Save" 
+					oncomplete="window.opener.document.location.reload(); window.close();"/>
+					
+	   	</apex:pageBlockButtons>
+	   	<apex:pageBlockSection columns="2" > 
+	   	
+	  
+	    <apex:outputPanel id="userList" >
+	        <div class="ui-user-list " >
+	            <div class="ui-user-item" >
+	                <a href="/{!colorUser.u.id}" class="feeditemcommentphoto" >
+	                    <img    title="{!colorUser.u.name}"  alt="{!colorUser.u.name}"  src="{!colorUser.u.SmallPhotoUrl}" />
+	                </a>
+	                    
+	                <span class="ui-user-item-body "  >
+	                    <label  id="{!colorUser.u.id}" style="background-color:{!JSENCODE(colorUser.setting.color__c)}">
+	                    	{!colorUser.u.name}
+	                    </label> 
+	                </span> 
+	            </div> 
+	        </div>
+		
+	    </apex:outputPanel>
+			   	<div class="colorpicker" >  <div id="colorpicker2"></div></div>
+		</apex:pageBlockSection>
+
+    </apex:pageBlock>
+    
+    <apex:actionFunction name="saveColor"  
+     		onComplete=""     	
+     		action="{!saveColor}" 
+     		rerender="errorMsgs" >
+	    <apex:param name="color" value="" />
+	    <apex:param name="background" value="" />
+	</apex:actionFunction>
+         
+</apex:form>
+
+<script type="text/javascript" charset="utf-8">
+	var farb; 
+	function callApexSaveColor() {
+		var invert = farb.invert ? '#fff' : '#000';
+		saveColor( invert, farb.color);
+	}
+
+	jQuery(document).ready(function() {
+		farb = jQuery.farbtastic('#colorpicker2',{ callback: '#{!User.id}', width: 150 });
+	    farb.setColor('{!JSENCODE(colorUser.setting.background_color__c)}');
+	});
+	</script> 
+	
+	
+<style type="text/css" media="screen">
+	.colorpicker {
+	   margin: 1em;
+	}
+	.ui-user-item-body label {			
+		padding:8px;		
+	}
+	 
+	.ui-user-item-body label {
+		-moz-border-radius:5px 5px 5px 5px;
+		padding:6px;
+	}	
+	body .bEditBlock .pbHeader, body .bLayoutBlock .pbHeader, body .apexp .bPageBlock.apexDefaultPageBlock .pbHeader {
+		border-bottom:1px solid #FFFFFF;
+		padding:12px;
+	} 
+</style>
+	
+</apex:page>

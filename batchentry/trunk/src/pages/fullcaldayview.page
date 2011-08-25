@@ -1,0 +1,347 @@
+<apex:page Controller="fullcalUser" sidebar="false">
+	<apex:stylesheet value="/sCSS/20.0/sprites/1288206287000/Theme3/default/chatter.css" />
+
+    <apex:stylesheet value="{!URLFOR($Resource.fullcalendar_148, '/css/light-blue/jquery-ui-1.8.6.custom.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.fullcalendar_148, '/fullcalendar/fullcalendar.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.fullcalendar_148, '/qtip/dist/jquery.qtip.css')}" />
+ 
+    <script type='text/javascript' src="{!URLFOR($Resource.fullcalendar_148,'/jquery/jquery-1.4.3.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.fullcalendar_148, '/jquery/jquery-ui-1.8.7.min.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.jquery_ui_datepicker)}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.fullcalendar_148, '/jquery/jquery_ba_dotimeout.js')}"></script>
+	<script type='text/javascript' src="{!URLFOR($Resource.fullcalendar_JS)}"  ></script>
+	<script type="text/javascript" src="{!URLFOR($Resource.fullcalendar_148, '/qtip/dist/jquery.qtip.js')}"></script>
+    <script type="text/javascript" src="{!URLFOR($Resource.fullcalendar_148, '/jquery/jquery.tmpl.js')}"></script>
+	
+	<apex:include pageName="fullcalUtil_JS" />
+	<apex:form >
+	 <div id="errors"><apex:pageMessages id="errorMsgs" /></div>
+	
+	 <div id='loading' style='display:none' >loading...</div>
+
+<div class="bPageTitle">
+	
+	
+	<table><tr>
+	<td>
+	<div class=" btn fc-button-prev fc-state-default fc-corner-left fc-no-right" alt="prev"><a><span>&nbsp;◄&nbsp;</span></a></div>
+	</td>
+	
+	<td><input type="text" id="datepicker" size="30" sytle="z-index:6;" READONLY="true"/></td>
+	<td><div class="btn fc-button-next fc-state-default fc-corner-right" alt="next"><a><span>&nbsp;►&nbsp;</span></a></div></td>	
+	</tr></table>
+	
+	</div> 
+
+	<apex:outputPanel id="userList" styleclass="calendars" >
+	      <apex:repeat value="{!Users}" var="u" >
+	          
+	          <div class="ui-user-item-wrap" >
+	          
+	           <div class="ui-user-item" >
+	             <a href="/{!u.u.id}"  >
+                       <img    title="{!u.u.name}"  alt="{!u.u.name}"  src="{!u.u.SmallPhotoUrl}" /></a>
+                                
+                 <span class="ui-user-item-body "  >
+		          	<label class="{!u.classname}" for="check{!u.u.id}" 
+                    	style="background-color:{!u.backgroundcolor}; border-color:{!u.backgroundcolor}; color:{!u.color}" >
+                    	{!u.u.name}
+                    </label>
+<!--			          	<span class="feeditemtext">{!u.u.currentstatus}</span>-->
+				</span>
+<!--	          	<div class="feedclearfloat"></div>-->
+		 
+		 		</div>
+		 		
+	          <div class="calendarDiv" alt="{!u.u.id}" id="{!u.u.id}"></div>
+
+	          </div>
+	      </apex:repeat>
+	</apex:outputPanel>
+	
+	
+	<div class="ui-widget" style="margin-top:2em;  padding: 5px 5px; font-family:Arial; display:none;">
+	    js debug log :
+	    <div id="log" style="height: 1300px; width: 420px; overflow: auto;" class="ui-widget-content"></div>
+	</div>
+	
+	   	<apex:actionFunction name="saveMove" onComplete="fadeOutErrors();" 
+	   			action="{!updateEventMove}" rerender="errorMsgs">
+            <apex:param name="eventId" value="" />
+            <apex:param name="dayDelta" value="" />
+            <apex:param name="minuteDelta" value="" />
+        </apex:actionFunction>
+	
+	  	<apex:actionFunction name="saveResize" action="{!updateEventResize}" 
+	  			onComplete="fadeOutErrors();" rerender="errorMsgs">
+            <apex:param name="eventId" value="" />
+            <apex:param name="dayDelta" value="" />
+            <apex:param name="minuteDelta" value="" />
+        </apex:actionFunction>
+	
+		<apex:actionFunction name="insertNewEvent" 
+				action="{!insertNewEvent}" 
+				onComplete="myOncomplete(request,event,data);" 
+				rerender="errorMsgs">
+            <apex:param name="title" value="" />
+            <apex:param name="start" value="" />
+            <apex:param name="end" value="" />
+            <apex:param name="allDay" value="" />
+            <apex:param name="ownerId" value="" />
+        </apex:actionFunction>
+        
+        
+<!--        BUG #calendar is not in this page-->
+        <apex:actionFunction name="deleteEventById" 
+		       	onComplete="myOncomplete(request,event,data);" 
+		       	action="{!deleteEventById}" 
+		       	rerender="errorMsgs">
+			<apex:param name="eventId" value="" />
+			<apex:param name="ownerId" value="" />
+        </apex:actionFunction>
+         
+	</apex:form>
+	
+<script type='text/javascript'>
+    function myOncomplete( request,event,data ) {
+		fadeOutErrors();
+		//var r = request;		var e = event;		var d = data;
+		var id = request.options.parameters.ownerId;
+		jQuery('#'+id).fullCalendar('refetchEvents');    	
+    }
+    
+	
+	
+	function dayClickCallback  (date, allDay, jsEvent, view ) {	}
+	
+	var cal_opts = { 
+		height: 950,
+		width: 270,  
+		defaultEventMinutes: 15,
+		slotMinutes: 15,
+		defaultView: 'agendaDay', 
+		allDayDefault: false, 
+		allDaySlot: false,
+		firstHour: 8,
+		
+		// we need to fix this block or the eventRender below does not work correctly
+		minTime: 8,		
+		maxTime: 19, 
+		
+		eventRender: function(event, element) {
+			// all events get colored by their type
+			if ( event.type == null ) event.type = '';
+			
+			if ( event.type != '' ) element.addClass( event.type.toLowerCase() );
+	        
+	       	if ( event.type == 'Available' ) {  
+	        	element.addClass('available');
+	        	 /* 
+	        	  * it's not a real event, rather shows availability
+	        	  * color the background to indicate that the user is 
+	        	  * working at this time
+     	  		  */
+		     	var cal = jQuery(element).closest('.calendarDiv');
+		     	var minMinute = jQuery.fullCalendar.parseTime( cal_opts['minTime'] );
+		     	
+				var maxMinute = jQuery.fullCalendar.parseTime( cal_opts['maxTime'] ); 
+				var eMin  = jQuery.fullCalendar.parseTime(  event.start );
+		     	var eMax = jQuery.fullCalendar.parseTime( event.end );
+		     	
+		     	var	d = jQuery.fullCalendar.zeroDate(); 
+				var maxd = jQuery.fullCalendar.addMinutes(jQuery.fullCalendar.cloneDate(d), maxMinute);
+				jQuery.fullCalendar.addMinutes(d, minMinute);
+		
+		     	for (i=0; d < maxd; i++) { // loop across the min slots of the day
+					var minutes = d.getMinutes();
+		     		var j = jQuery.fullCalendar.parseTime( d );
+		     		if ( j >= eMin && j < eMax ) { 
+		     			cal.find('.fc-slot'+i).addClass('fc-state-working');	// color this slot 
+		     		}
+					jQuery.fullCalendar.addMinutes(d, cal_opts['slotMinutes']);
+		     	}
+		     	
+		    	return false; 				// it's not a real event, rather shows availability
+	        }
+	        
+			addToolTipToEvent(element,event);	        
+	      	return true;		
+	    },
+	    
+		eventAfterRender: function (event, element) {
+			//log('event after render '+event.title);
+		},
+		
+		timeFormat: {  
+			agenda: 'h:mm{ - h:mm}',
+			'': 'h(:mm)t'	
+		} ,
+
+		header: {		left: '',center: '',	right: '' 		}, 
+		
+		loading: function(bool) {
+			if (bool) {				
+				jQuery('#loading').show();
+				// clear background colors on events
+				jQuery('.fc-state-working').removeClass('fc-state-working'); 
+			}else{					
+				jQuery('#loading').hide();
+				
+				// set the date in the header title
+				var d = jQuery(this).fullCalendar('getDate');
+				var fmt = jQuery.fullCalendar.formatDate(d, 'dddd MMMM d, yyyy' );
+			    // TODO jQuery('.fc-header-title').text(fmt);			
+			}
+		},
+		
+		eventDrop: function(event, dayDelta, minuteDelta) {
+            saveMove(event.id,dayDelta,minuteDelta);
+        },
+        
+        eventResize: function(event,dayDelta,minuteDelta,revertFunc) {
+            saveResize(event.id,dayDelta,minuteDelta);
+        },
+
+		eventClick: function(event) {
+			// opens events in a popup window rather than navigate to 
+			window.open(event.url, 'gcalevent', 'width=800,height=600');
+			return false;
+		},
+		
+		selectable: true,
+        selectHelper: true,
+		select: function(start, end, allDay) {
+            var title = prompt('Event Title:');
+            if (title) {
+                // create the new event now
+                var ownerId = this.element.closest( '.calendarDiv').attr('id');
+                
+                // in the calendar
+                this.calendar.renderEvent(  {
+                        title: title,
+                        start: start,
+                        end: end,
+                        className : 'fc-'+ownerId,
+                        allDay: allDay
+                    },
+                    false // make the event "stick"
+                );
+                
+                // and in the database
+                insertNewEvent( 
+                	title, 
+                	start.getTime(), 
+                	end.getTime(),
+                	allDay, 
+                	ownerId 
+                );
+                
+                // TODO fix me, need to reload this one calendar... but how?
+                // nope: this.element.closest( '.calendarDiv').fullCalendar('refetchEvents');
+                
+            }
+            this.calendar.unselect();
+        },
+		
+		// open a new event pop
+		//dayClick: dayClickCallback,
+		
+		editable: true
+	};
+		
+		
+	/* construct the calendars for each person 
+	 * 
+	 */
+	jQuery(document).ready(function() {
+		var theDate = new Date(); 
+		 
+		// calculate and set column widths
+		var width = jQuery('#bodyTable').width();
+		var count = jQuery('.calendarDiv').size();
+		var per = Math.floor( width / count );
+		per = Math.max(155,per);
+		per = Math.min(350,per); 
+		jQuery('.ui-user-item-wrap').css('width',per -(count*5) +'px');
+		
+		// build calendars, one per user
+		jQuery('.calendarDiv').each( function(index){ 
+			var j = jQuery(this); 
+			j.fullCalendar( cal_opts );
+			j.fullCalendar('addEventSource', '/apex/fullcalUserData?id='+j.attr('alt'));
+		});
+		
+		// click handler for the next/prev buttons
+		jQuery('.fc-button-next,.fc-button-prev').click( function() { 
+			var cmd = jQuery(this).attr('alt');
+			var d; 
+			jQuery('.calendarDiv').each( function(index){ 
+				var j = jQuery(this);
+				j.fullCalendar(  cmd );
+				d = j.fullCalendar('getDate');
+			});
+			jQuery('#datepicker').val( jQuery.fullCalendar.formatDate( d, 'dddd, d MMMM, yyyy' ) );
+		});
+		jQuery('.fc-button-today').click( function() { 
+			var today = new Date(); 
+			jQuery('.calendarDiv').each( function(index){ 
+				jQuery(this).fullCalendar('gotoDate',today );
+			});
+
+			jQuery('#datepicker').val( jQuery.fullCalendar.formatDate( today, 'dddd, d MMMM, yyyy' ) );
+			// toggle the state as disabled ?  TODO 
+			
+		});
+       	/* 
+       	 * set the styles for events dynamicaly, copy the colors from the user-list which comes from custom settings
+       	 */ 
+ 		appendUserStyles('.calendars .ui-user-item-body label');
+ 		
+		// TOOD set the Today button to navitate to "today" for each calendar	
+		jQuery( "#datepicker" ).datepicker({ 
+			dateFormat:'DD, d MM, yy' ,
+			showOn:'button',
+			onSelect: function(dateText, inst) { 
+				log('new date');
+				jQuery('.calendarDiv').each( function(index){ 
+					jQuery(this).fullCalendar('gotoDate',new Date(Date.parse(dateText)));
+				});
+				return false;
+			}
+		});
+		
+		jQuery('#datepicker').val( jQuery.fullCalendar.formatDate( theDate, 'dddd, d MMMM, yyyy' ) );
+		 
+	});
+	
+
+</script> 
+
+<apex:include pageName="fullcalStyle" />
+
+<style type='text/css'>
+
+.ui-user-item-wrap {
+	width: 270px;
+	margin: 0 auto;
+	float:left;
+	padding-left: 6px;
+}
+.ui-user-item-body { 
+ padding-top: 6px;
+}
+.ui-user-item-body label { 
+	margin-left: 6px;
+} 
+
+.fc .fc-agenda-body td div {
+/*	height: 14px;		/* height of 15 min on the cal */
+}
+#datepicker { 
+	font-size: 15px;
+	}
+.bPageTitle table { 
+	padding-left:150px;
+	}
+</style>
+</apex:page>

@@ -1,0 +1,89 @@
+<apex:page >
+    <apex:stylesheet value="{!URLFOR($Resource.fullcalendar_148, '/css/light-blue/jquery-ui-1.8.6.custom.css')}" />
+
+<style>
+span.ui-icon {	display:inline-block;}
+</style>
+<div class="about" style="font-size:1.2em;padding:16px;"  >
+<h1>Chatter Calendar - developer sample</h1>
+
+<p>The Chatter calendar allows you to view the calendar for each member of a 
+Chatter Group.  The application is 
+intended to serve as a developer sample and contains several areas for improvement.  
+Testing has been limited to my own efforts and 
+cannot be characterized as complete for production purposes.</p>
+
+<p>The Calendar Day tab is experimental</p>
+
+<h2>Post Install instructions</h2>
+<ul>
+<li>Edit the Event field <b>Type</b> Picklist Values 
+<a href="https://na7.salesforce.com/p/setup/field/StandardFieldAttributes/d?id=Type&type=Event">found here</a>
+	to add a type called "Available".  This type will indicate a workshift 
+	event (when a user is available to be scheduled)	on the Calendar Day view.</li>
+<li>Edit the Event layout to add the Type picklist to the event layout 
+<a href="/ui/setup/layout/PageLayouts?type=Event">Event Layouts</a></li>
+</ul>
+
+<h2>Getting Started</h2>
+<ul>
+<li>Create a Chatter group with 3-7 members, more than that and the calendar 
+	may become slow</li>
+<li>Enter that group name in the input box on 
+	the <a href="/apex/fullcalGroup">Calendar Group</a> 
+	tab and select that group to view</li>
+
+<li>You should now see the users calendars for day, week and month</li>
+<li>For each user, click the small gear icon (<span alt="Color" class="ui-icon ui-icon-gear">&nbsp;</span>) 
+	and select a color for that user's events, save the color and the page should refresh to show this color.</li>
+<li>Create a new event by clicking on the page, fill in a subject and click to save.</li>
+</ul>
+
+
+ 
+<h2>Features</h2>
+
+<ul><li>Click to create a new event</li>
+<li>Drag to move an event</li>
+<li>Drag to resize</li>
+<li>Drag a user name to change the owner of an event</li>
+<li>Click a user name to hide or show their events</li>
+<li>Hover over event to see details</li>
+<li>Edit and Delte from the hover dialog</li>
+<li>Events are colored to match their owner</li>
+<li>click gear icon to change the color of a user's events</li>
+<li>Events with a type of 'Available' (aka Workshift) are displayed differently 
+	on day view</li>
+<li>Workshift events are shown on the Calendar Day view as a colored background</li>
+<li>Workshift events do not allow drag</li>
+<li>invalid JSON characters are escaped on the data page using JSINHTMLENCODE()</li>
+<li>New event dialog has assigned to on group calendar</li>
+<li>new events chatter to the group (or owner if the user is not a member of the group)</li>
+<li>link to the selected group on this page</li>
+<li>who appears in the title of the event</li>
+<li>who field ( contact lookup) appears in the new event popup</li>
+<li>dayview attempts to size it's columns to fit</li>
+<li>dayview date input field has date picker popup activated by a button</li>
+</ul>
+
+ 
+<h2>Missing features and bugs</h2>
+
+<ul>
+<li>in dayview, Day starting time should be in a custom setting </li>
+<li>in dayview,  does not scroll to earlier and later times</li>
+<li>in dayview, nice to have a "Today" button</li>
+<li>in dayview, no way to set user colors </li>
+<li>in dayview , no way to change the chatter group</li>
+<li>in dayview , new event should use the same UI as group cal</li>
+<li>new event dialog should have more fields, what, etc</li>
+<li>new users added to the system appear with a transparent color 
+until their color is set, should be gray or some other default</li>
+<li>in dayview, adding new events causes the (green) available time color to disappear</li>
+</ul>
+
+
+</div>
+
+
+</apex:page>

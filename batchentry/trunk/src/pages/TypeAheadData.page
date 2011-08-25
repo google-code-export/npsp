@@ -1,0 +1,13 @@
+<apex:page controller="TypeAheadDataController" standardStyleSheets="false" showHeader="false" contentType="text/plain">
+<apex:variable value="{!0}" var="cnt"/>
+<apex:variable value="{!dataRecords.size}" var="max"/>
+[<apex:repeat value="{!dataRecords}" var="dr" >
+{	"id": "{!dr.recordId}",
+	"label": "{!dr.recordName}",
+	"value": "{!dr.recordName}"
+}
+<apex:variable value="{!cnt+1}" var="cnt"/>
+<apex:variable value="sdf" var="sdf" rendered="{! cnt != max}" >,</apex:variable><!-- ie fix for last comma -->
+</apex:repeat>]
+{!errors}
+</apex:page>

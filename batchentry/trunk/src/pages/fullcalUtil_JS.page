@@ -1,0 +1,197 @@
+<apex:page >
+<!--markup for the hover that appears over events --> 
+<script id="hoverTemplate" type="text/x-jquery-tmpl">
+
+	<div class="bPageBlock secondaryPalette" >
+		<div class="pbHeader">
+		<table cellspacing="0" cellpadding="0" border="0"><tbody><tr><td class="pbTitle">
+			<h2 class="mainTitle">Event Detail</h2></td><td class="pbButton">
+			<input type="button" title="Edit" name="edit" class="btn" value=" Edit " onclick="javascript:navigateToEdit(this);" alt="${id}" >
+			<input type="button" title="Delete" name="delete" class="btn" value="Delete" onclick="javascript:deleteEvent(this,'${ownerid}');" alt="${id}" >
+		</td></tr>
+		</tbody></table>
+
+	</div><div class="pbBody"><div class="pbSubsection">
+			
+	<table cellspacing="0" cellpadding="0" border="0" class="detailList"><tbody><tr>
+		<td class="labelCol">Assigned To</td><td class="dataCol">
+		${ownerName}
+		</td></tr>
+		<tr><td class="labelCol">Subject</td><td class="dataCol">
+		${title}
+		</td></tr>
+		<tr><td class="labelCol">Name</td><td class="dataCol">${who}&nbsp;</td></tr>
+		<tr><td class="labelCol">Start</td><td class="dataCol">
+		${startFormat}
+		</td></tr>
+		<tr><td class="labelCol last">End</td><td class="dataCol last">
+		${endFormat}
+		</td></tr>
+		
+		<tr><td class="labelCol">Description</td><td class="dataCol">
+		${description}
+		</td></tr>
+		
+</tbody></table>
+	
+	</div></div>
+	</div>
+
+</script>
+
+<script>
+ 	var theCal;	var toolTipFormat = 'h:mm TT'; // 'ddd MMM dd  hh:mm TT';
+ 	
+	
+	function saveNewEvent(ele,start,end,allDay) {
+		var pb =  jQuery(ele).closest('.bPageBlock');
+		var title  = pb.find('#newEventSubject').val();
+		if ( title == '' ) 
+			return;
+		var t = pb.find('.assignedTo');	
+		var ownerId = pb.find('.assignedTo :selected').val(); // selected value?
+		var whoId = pb.find('#newEventWhoId').val(); // selected whp
+		 
+		theCal.fullCalendar('renderEvent', {
+				                title: title,
+				                start: new Date(start),
+				                end: new Date(end),
+				                allDay: allDay
+				            },  false 	);
+				            
+		jQuery('#calendar').qtip('hide');    
+		insertNewEvent( title, start, end, allDay, ownerId, whoId );
+	}
+
+	function newEventPopup(start, end, allDay, ev, view) { 
+		var detail = {	'start':	start.getTime(),
+       					'end':  	end.getTime(),
+       					'allDay':	allDay 
+       					}; 
+        detail.startFormat = jQuery.fullCalendar.formatDate(start,toolTipFormat);
+        detail.endFormat = jQuery.fullCalendar.formatDate(end,toolTipFormat);
+        
+        
+        // set the selected item in the hoverNewTemplate, from the first User in list
+        var ele = jQuery('#hoverNewTemplate').tmpl(detail );
+        ele.find('.assignedTo').val( getFirstUserId() ); 
+        
+        ele.find( "#newEventWho" ).autocomplete({   source: "whoSearch",     minLength: 2,
+            select: function( event, ui ) {
+                log( ui.item ?
+					"Selected: " + ui.item.id :
+					"Nothing selected, input was " + this.value );
+              	if ( ui.item == null ) return;
+                ele.find( "#newEventWhoId" ).val( ui.item.id );
+                
+            }
+        });
+        
+		jQuery('#calendar').removeData('qtip')
+           	.qtip({			        
+           		overwrite: true,
+               	content: { text: ele	},
+        		position: 	{ 
+        			at: "top center",  
+        			my: "bottom center", 
+        			adjust:{screen: true } , 
+        			target: jQuery(ev.target) 
+        		}, 
+               	show: {  
+                  event: false, ready: true, solo: true, modal:true
+               	},
+               	hide: false,
+               	style: {
+                  tip: true,
+                  classes: 'ui-tooltip-sfdc ui-tooltip-shadow'
+               	}   
+			});
+			
+			// todo destroy this tip on close of this tip
+	}
+	
+	// return the owner id of the first user in the user list
+	function getFirstUserId() { 
+		return jQuery('.ui-user-list div:first').find('input').attr('alt');
+	}
+	
+  	/* 
+   	 * set the styles for events dynamicaly, copy the colors from the user-list which comes from custom settings
+   	 */
+	function appendUserStyles( selector ) { 
+		var styles = ''; 
+       	jQuery(selector).each( function(index) { 
+       		var t = jQuery(this);
+       		var cls = t.attr('class'), 
+       			col = t.css('color'), 
+       			bg = t.css('background-color');
+       			
+       		if ( col != null && bg != null ) {
+       			styles += '.'+cls + ', .'+cls+' a, .'+cls+' a:hover, .'+cls+' .fc-event-time '+ 
+       						'{color:'+col+';background-color:'+bg+';border-color:'+bg+';} ';
+       		}	
+       	});
+        appendStyle( styles );  
+	}
+
+	
+	function addToolTipToEvent(element,event) {	
+        /* this pulls data from the event, at load time 
+		 * an alternative is to pull data at the time we show the tip.
+		 * should this pre-compile the template as an optimization?
+		 */
+		event.startFormat = jQuery.fullCalendar.formatDate(event.start,toolTipFormat);
+		event.endFormat = jQuery.fullCalendar.formatDate(event.end,    toolTipFormat);
+		element.qtip({ 
+	        //content: 	{ text: hoverHtml(event)     	},
+	        content: 	{ text: jQuery('#hoverTemplate').tmpl( event ) },
+	        hide: 		{ fixed: true, delay: 100,  effect: "fade"   },
+	        position: 	{ at: "right center",  my: "left center", adjust:{screen: true }  }, 
+	        show: 		{ delay: 400,		solo: true		},
+	        style: 		{ tip: "bottomLeft",  classes: "ui-tooltip-sfdc ui-tooltip-shadow"  }
+	        
+		});
+        
+	}
+	function navigateToEdit( inputElement ) {
+		var id = jQuery(inputElement).attr('alt'); 
+		window.location.href = "/"+id+"/e?retURL=" + window.location.href;
+	}
+	
+	function deleteEvent( inputElement,ownerid ) {
+		var id = jQuery(inputElement).attr('alt'); 
+		deleteEventById( id,ownerid ); 
+	}	
+
+ 	function log( message ) {
+        jQuery( "<div/>" ).text( message ).prependTo( "#log" );
+        jQuery( "#log" ).attr( "scrollTop", 0 );
+    }
+
+    function getSettingValue(name, defaultValue) { 
+        return ( name != null && name != "" ? name : defaultValue );
+    }
+    
+    function fadeOutErrors() {
+        if (jQuery('#errors').text() != '') {
+            var t=setTimeout('fadeErrors()',9000);
+        }
+    }
+    
+    function fadeErrors(){
+        jQuery('#errors').fadeOut('slow');
+    }
+    
+	function appendStyle(styles) {
+		var css = document.createElement('style');
+		css.type = 'text/css';
+		css.media = 'handheld,print,projection,screen,tty,tv';
+		css.rel = 'stylesheet';
+		if (css.styleSheet) css.styleSheet.cssText = styles;
+		else css.appendChild(document.createTextNode(styles));
+		
+		document.getElementsByTagName("head")[0].appendChild(css);
+	}
+    
+</script>
+</apex:page>
