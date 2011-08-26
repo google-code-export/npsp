@@ -220,6 +220,31 @@
         <type>Date</type>
     </fields>
     <fields>
+        <fullName>Naming_Exclusions__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Determines which household names this contact is NOT included as part of.</inlineHelpText>
+        <label>Naming Exclusions</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Household__c.Name</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Household__c.Formal_Greeting__c</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Household__c.Informal_Greeting__c</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>MultiselectPicklist</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
         <fullName>NumberOfClosedOpps__c</fullName>
         <defaultValue>0</defaultValue>
         <deprecated>false</deprecated>
@@ -262,7 +287,7 @@
         <defaultValue>0</defaultValue>
         <deprecated>false</deprecated>
         <externalId>false</externalId>
-        <label>Total Gifts Last 365 Days</label>
+        <label>Total Gifts Last N Days</label>
         <precision>16</precision>
         <required>false</required>
         <scale>2</scale>
@@ -335,7 +360,7 @@
         <defaultValue>0</defaultValue>
         <deprecated>false</deprecated>
         <externalId>false</externalId>
-        <label>Number of Gifts Last 365 Days</label>
+        <label>Number of Gifts Last N Days</label>
         <precision>18</precision>
         <required>false</required>
         <scale>0</scale>
@@ -398,7 +423,7 @@
             </picklistValues>
             <picklistValues>
                 <fullName>No Contacts</fullName>
-                <default>true</default>
+                <default>false</default>
             </picklistValues>
             <sorted>false</sorted>
         </picklist>
@@ -787,4 +812,15 @@ if(ISPICKVAL(npe01__Secondary_Address_Type__c,&quot;Work&quot;),
         </filters>
         <label>New This Week</label>
     </listViews>
+    <webLinks>
+        <fullName>Copy_Address_to_Household</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <height>600</height>
+        <linkType>page</linkType>
+        <masterLabel>Copy Address to Household</masterLabel>
+        <openType>sidebar</openType>
+        <page>BTNContactAddressCopy</page>
+        <protected>false</protected>
+    </webLinks>
 </CustomObject>
