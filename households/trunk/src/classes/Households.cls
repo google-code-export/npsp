@@ -27,11 +27,6 @@
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
     POSSIBILITY OF SUCH DAMAGE.
 */
-/**
-* @author Salesforce.com Foundation
-* @date 2011 (2.0)
-* @description Handles creation, deleting and moving of Households between Contacts 
-*/
 global without sharing class Households { 
     
     //One-to-One value for system processor field

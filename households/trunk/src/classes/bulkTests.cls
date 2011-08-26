@@ -19,11 +19,6 @@
  *
  * See the Apex Language Reference for more information about Testing and Code Coverage.
  */
- /**
-* @author Salesforce.com Foundation
-* @date 2011
-* @description Provides bulk testing support locally. Generally not included in the package distribution
-*/
 @isTest
 private class bulkTests {
 /*
