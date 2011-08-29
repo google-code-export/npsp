@@ -82,11 +82,19 @@
     </types>
     <types>
         <members>Account</members>
+        <members>Affiliation__c</members>
+        <members>Affiliations_Settings__c</members>
         <members>Campaign</members>
         <members>Contact</members>
+        <members>Contacts_And_Orgs_Settings__c</members>
+        <members>Household__c</members>
+        <members>Households_Settings__c</members>
         <members>Lead</members>
         <members>Opportunity</members>
         <members>OpportunityContactRole</members>
+        <members>Recurring_Donation__c</members>
+        <members>Relationship__c</members>
+        <members>User_Rollup_Field_Settings__c</members>
         <name>CustomObject</name>
     </types>
     <types>
@@ -128,6 +136,10 @@
     <types>
         <members>*</members>
         <name>Letterhead</name>
+    </types>
+    <types>
+        <members>Admin</members>
+        <name>Profile</name>
     </types>
     <types>
         <members>ApexDevNet</members>
