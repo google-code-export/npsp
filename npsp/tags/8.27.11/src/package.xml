@@ -143,6 +143,7 @@
     </types>
     <types>
         <members>ApexDevNet</members>
+        <members>Salesforce_Foundation</members>
         <name>RemoteSiteSetting</name>
     </types>
     <types>
