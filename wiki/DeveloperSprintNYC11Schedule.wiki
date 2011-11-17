@@ -20,5 +20,5 @@
 
 
 === Directions ===
-http://www.crenyc.org/directions
-http://www.javitscenter.com/Default.aspx?cmsid=40
+ http://www.crenyc.org/directions
+ http://www.javitscenter.com/Default.aspx?cmsid=40
